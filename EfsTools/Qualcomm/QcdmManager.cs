@@ -11,7 +11,6 @@ using EfsTools.Qualcomm.QcdmCommands.Responses;
 using EfsTools.Qualcomm.QcdmManagers;
 using EfsTools.Resourses;
 using EfsTools.Utils;
-using RJCP.IO.Ports;
 
 namespace EfsTools.Qualcomm
 {
@@ -33,19 +32,18 @@ namespace EfsTools.Qualcomm
         private const int SpcLength = 6;
         private const int PasswordLength = 16;
 
-        private readonly HdlcSerial _port;
+        private readonly HdlcUsb _port;
         private bool _doEventReport;
         private readonly bool _ignoreUnsupportedCommands;
         private readonly Logger _logger;
-        
-        public QcdmManager(string port, int baudrate, int timeout, bool sendControlChar, 
+
+        public QcdmManager(int vid, int pid, int timeout, bool sendControlChar,
             bool ignoreUnsupportedCommands, Logger logger)
         {
             _doEventReport = false;
             _logger = logger;
             _ignoreUnsupportedCommands = ignoreUnsupportedCommands;
-            var realPort = GetSerialPort(port, baudrate, sendControlChar, ignoreUnsupportedCommands, logger);
-            _port = new HdlcSerial(realPort, baudrate, timeout, sendControlChar);
+            _port = new HdlcUsb(vid, pid, timeout, sendControlChar);
             Gsm = new QcdmGsmManager(this);
             CallManager = new QcdmCallManager(this);
             Efs = new QcdmEfsManager(this);
@@ -54,7 +52,7 @@ namespace EfsTools.Qualcomm
         }
 
         public bool IsOpen => _port.IsOpen;
-        public string PortName => _port.PortName;
+        public string DeviceName => _port.DeviceName;
 
         public ushort DiagVersion
         {
@@ -772,35 +770,5 @@ namespace EfsTools.Qualcomm
             }
         }
 
-        private static string GetSerialPort(string port, int baudrate, bool hdlcSendControlChar, bool ignoreUnsupportedCommands, Logger logger)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(port) || port.ToLowerInvariant() == "auto")
-                {
-                    return DetectSerialPort(baudrate, hdlcSendControlChar, ignoreUnsupportedCommands, logger);
-                }
-
-                return port;
-            }
-            catch
-            {
-                return port;
-            }
-        }
-
-        private static string DetectSerialPort(int baudrate, bool hdlcSendControlChar, bool ignoreUnsupportedCommands, Logger logger)
-        {
-            var ports = SerialPortStream.GetPortNames();
-            foreach (var port in ports)
-            {
-                if (QualcommSerialPortUtils.IsQualcommPort(port, baudrate, hdlcSendControlChar, ignoreUnsupportedCommands, logger))
-                {
-                    return port;
-                }
-            }
-
-            return ports.FirstOrDefault();
-        }
     }
 }

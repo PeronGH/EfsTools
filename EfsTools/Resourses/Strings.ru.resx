@@ -325,7 +325,7 @@
     <value>Обработка '{0}' ...</value>
   </data>
   <data name="QcdmSerialPortIsNotOpen" xml:space="preserve">
-    <value>Последовательный порт не открыт</value>
+    <value>USB-устройство не открыто</value>
   </data>
   <data name="QcdmUnsupportedCommandResponseFormat" xml:space="preserve">
     <value>Неподдерживаемая команда   ({0})</value>
@@ -397,7 +397,7 @@
     <value>Не корректный формат MBN. Неизвестный тип данных</value>
   </data>
   <data name="QcdmUseComPortFormat" xml:space="preserve">
-    <value>COM-порт: '{0}'</value>
+    <value>USB-устройство: '{0}'</value>
   </data>
   <data name="QcdmExtractingMbnFileFormat" xml:space="preserve">
     <value>Распаковка файла MBN '{0}' ...</value>

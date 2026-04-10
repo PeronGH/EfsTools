@@ -325,7 +325,7 @@
     <value>Processing '{0}' ...</value>
   </data>
   <data name="QcdmSerialPortIsNotOpen" xml:space="preserve">
-    <value>Serial port is not open</value>
+    <value>USB device is not open</value>
   </data>
   <data name="QcdmUnsupportedCommandResponseFormat" xml:space="preserve">
     <value>Unsupported command response ({0})</value>
@@ -397,7 +397,7 @@
     <value>Invalid MBN format. Unknown item type</value>
   </data>
   <data name="QcdmUseComPortFormat" xml:space="preserve">
-    <value>Use serial port '{0}'</value>
+    <value>Use USB device '{0}'</value>
   </data>
   <data name="QcdmExtractingMbnFileFormat" xml:space="preserve">
     <value>Extracting MBN file '{0}' ...</value>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 
 namespace EfsTools
 {
@@ -11,16 +12,20 @@ namespace EfsTools
             _configurationSection = configurationRoot == null ? null : configurationRoot.GetSection("efstool");
         }
 
-        public string Port
+        public int Vid
         {
-            get => GetValue("port", "Auto");
-            set => SetValue("port", value);
+            get => Convert.ToInt32(GetValue("vid", "05C6"), 16);
+            set => SetValue("vid", $"{value:X4}");
         }
 
-        public int Baudrate
+        public int Pid
         {
-            get => int.Parse(GetValue("baudrate", "38400"));
-            set => SetValue("baudrate", $"{value}");
+            get
+            {
+                var val = GetValue("pid", "0");
+                return val.ToLowerInvariant() == "auto" ? 0 : Convert.ToInt32(val, 16);
+            }
+            set => SetValue("pid", $"{value:X4}");
         }
 
         public string Password

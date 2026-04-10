@@ -433,14 +433,10 @@ namespace EfsTools
 
         private QcdmManager OpenQcdmManager()
         {
-            var manager = new QcdmManager(_config.Port, _config.Baudrate, 7000, 
+            var manager = new QcdmManager(_config.Vid, _config.Pid, 7000,
                 _config.HdlcSendControlChar, _config.IgnoreUnsupportedCommands, _logger);
-            if (_config.Port != manager.PortName)
-            {
-                _logger.LogInfo(Strings.QcdmUseComPortFormat, manager.PortName);
-            }
-
             manager.Open();
+            _logger.LogInfo(Strings.QcdmUseComPortFormat, manager.DeviceName);
             manager.SendPassword(_config.Password);
             manager.SendSpc(_config.Spc);
             manager.DisableLogs();
