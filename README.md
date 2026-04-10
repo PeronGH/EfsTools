@@ -1,146 +1,148 @@
-# EfsTools. Консольная программа для доступа к файловой системе EFS модемов Qualcomm
+# EfsTools
 
-Программа позволяет:
-- Получить информацию о подключенном устройстве
-- Получить информацию о параметрах файловой сиситемы EFS
-- Прочитать файл из устройства в компьютер
-- Записать файл из компьютера в устройство
-- Удалить файл с устройства
-- Переименовать (переместить) файл на устройстве
-- Создать каталог в устройстве
-- Удалить каталог на устройстве
-- Получить список файлов и каталогов 
-- Загрузить каталог из устройства на компьютер
-- Загрузить каталог с компьютера на утройство.
+A command-line tool for accessing the EFS (Embedded File System) on Qualcomm modems over USB.
 
-## Системные требования
+## Features
 
-- Windows 10 1607 и новее, Windows Server 2012 R2 и новее, Mac OS X 10.13 и новее, Red Hat Enterprise Linux 7 и новее, CentOS 7 и новее, Ubuntu 16.04 и новее, Fedora 30 и новее, Debian 9 и новее, OpenSUSE 15 и новее
-- [DotNet 5.0](https://dotnet.microsoft.com/download/dotnet/5.0) и выше.
+- Get device and EFS filesystem info
+- Read, write, rename, and delete files on the device
+- Create and delete directories
+- List directory contents
+- Download/upload entire directory trees between the device and computer
+- Read and write modem configuration (NV items) as JSON
+- Extract MBN (Modem configuration BiNary) files
+- Capture modem logs and messages
+- Serve the EFS as a WebDAV share
 
-## Установка
-Необходимо скачать архив релиза с [сайта разработчика](http://johnbel.github.io/). Затем распаковать его.
+## Requirements
 
-## Конфигурация
-Настройки программы хранятся в файле EfsTools.exe.config. Перед началом работы необходимо указать имя COM-порта (параметр ***port***) и его скорость (***baudrate***).
+- [.NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- libusb (installed via your system package manager)
+- A Qualcomm device in DIAG mode connected via USB
 
-## Параметры командной строки
+## Configuration
 
-EfsTools.exe <команда> [параметры команды]
+Settings are stored in `EfsTools.dll.config`:
 
-### Список команд
-  
-***targetInfo***
-Получение информации о подключенном устройстве.
+| Parameter | Default | Description |
+|---|---|---|
+| `vid` | `05C6` | USB Vendor ID (hex) |
+| `pid` | `auto` | USB Product ID (hex), or `auto` to scan |
+| `password` | `FFFFFFFFFFFFFFFF` | DIAG password |
+| `spc` | `000000` | Service Programming Code |
+| `hdlcSendControlChar` | `False` | Send HDLC leading control character |
+| `ignoreUnsupportedCommands` | `True` | Ignore unsupported QCDM commands |
 
-Пример: EfsTools.exe targetInfo
+## Usage
 
-***efsInfo***
-Получение информации о файловой системе EFS в устройстве
+```
+EfsTools <command> [options]
+```
 
-Пример: EfsTools.exe efsInfo
+### Commands
 
-***readFile***
-Чтение файла с утройства на компьютер
+**targetInfo** — Print device information (IMEI, firmware version, etc.)
+```
+EfsTools targetInfo
+```
 
-Пример: EfsTools.exe readFile -i /safe/test/efs -o c:\temp\efs
+**efsInfo** — Print EFS filesystem parameters
+```
+EfsTools efsInfo
+```
 
-***writeFile***
-Запись файла с компьютера на утройство
+**readFile** — Read a file from the device
+```
+EfsTools readFile -i /nv/item_files/example -o ./example
+```
 
-Пример: EfsTools.exe writeFile -i c:\temp\efs -o /safe/test/efs
+**writeFile** — Write a file to the device
+```
+EfsTools writeFile -i ./example -o /nv/item_files/example
+```
 
-***renameFile***
-Переименовать файл на устройстве
+**renameFile** — Rename/move a file on the device
+```
+EfsTools renameFile -p /path/old -n /path/new
+```
 
-Пример: EfsTools.exe renameFile -p /safe/test/efs -n /safe/test/efs2
+**deleteFile** — Delete a file on the device
+```
+EfsTools deleteFile -p /path/to/file
+```
 
+**createDirectory** — Create a directory on the device
+```
+EfsTools createDirectory -p /path/to/dir
+```
 
-***deleteFile***
-Удалить файл на устройстве
+**deleteDirectory** — Delete a directory on the device
+```
+EfsTools deleteDirectory -p /path/to/dir
+```
 
-Пример: EfsTools.exe deleteFile -p /safe/test/efs
+**listDirectory** — List files and directories
+```
+EfsTools listDirectory -p / -r
+```
 
-***createDirectory***
-Создать каталог на устройстве
+**downloadDirectory** — Download a directory from the device
+```
+EfsTools downloadDirectory -i / -o ./backup
+```
 
-Пример: EfsTools.exe createDirectory -p /safe/test/efs
+**uploadDirectory** — Upload a directory to the device
+```
+EfsTools uploadDirectory -i ./backup -o /
+```
 
+**getModemConfig** — Export modem configuration as JSON (from device or local EFS directory)
+```
+EfsTools getModemConfig -p ./config.json
+EfsTools getModemConfig -i ./efs_backup -p ./config.json
+```
 
-***deleteDirectory***
-Удалить каталог на устройстве
+**setModemConfig** — Apply modem configuration from JSON (to device or local EFS directory)
+```
+EfsTools setModemConfig -p ./config.json
+EfsTools setModemConfig -p ./config.json -o ./efs_output
+```
 
-Пример: EfsTools.exe deleteDirectory -p /safe/test/efs
+**extractMbn** — Extract an MBN file to a directory
+```
+EfsTools extractMbn -i mcfg_sw.mbn -p ./mcfg
+```
 
+**getLog** — Capture modem logs
+```
+EfsTools getLog -l IMS_MESSAGE
+```
 
-***listDirectory***
-Получить список файлов и каталогов 
+**webDavServer** — Start a WebDAV server exposing the EFS
+```
+EfsTools webDavServer -p 8888 -r 1
+```
 
-Пример: EfsTools.exe listDirectory -p /safe/test/efs -r
+**help** — Show help for a command
+```
+EfsTools help createDirectory
+```
 
-***downloadDirectory***
-Загрузить каталог с устройства на компьютер
+**version** — Print version
+```
+EfsTools version
+```
 
-Пример: EfsTools.exe downloadDirectory -i / -o c:\backup\efs
+## License
 
+[MIT](License.md)
 
-***uploadDirectory***
-Загрузить каталог c компьютера на устройство
+### Third-party libraries
 
-Пример: EfsTools.exe uploadDirectory -i c:\backup\efs -o /
+- [CommandLineParser](https://github.com/commandlineparser/commandline) — Giacomo Stelluti Scala & Contributors
+- [NWebDav](https://github.com/ramondeklein/nwebdav) — Ramon de Klein
+- [Newtonsoft.Json](https://www.newtonsoft.com/json) — James Newton-King
+- [ELFSharp](http://elfsharp.hellsgate.pl) — Konrad Kruczyński et al.
+- [LibUsbDotNet](https://github.com/LibUsbDotNet/LibUsbDotNet) — Travis Robinson, quamotion
 
-
-***getModemConfig***
-Сгенерировать конфигурацию модема используя устройство или каталог (параметр -i) с EFS-структурой
-
-Пример: EfsTools.exe getModemConfig -i .\backup -p .\items_backup.json 
-EfsTools.exe getModemConfig -p .\items_phone.json 
-
-
-***setModemConfig***
-Установить конфигурацию модема в устройстве или сгененировать EFS-структуру в каталоге (параметр -o)
-
-Пример: EfsTools.exe setModemConfig -p .\items.json -o .\efs
-EfsTools.exe setModemConfig -p .\items_for_phone.json
-
-
-***extractMbn***
-Распаковать содержимое MBN (Modem configuration BiNary) файла в указанную директорию
-Пример: EfsTools.exe extractMbn -i mcfg_sw.mbn -p mcfg
-
-***getLog***
-Начать захват логов и сообщений модема
-
-Пример: EfsTools.exe getLog -l IMS_MESSAGE
-
-***webDavServer***
-Запуск WebDAV сервера
-
-Пример: EfsTools.exe webDavServer  -p 8888 -r 1
-  
-  
-***help***
-Показать справку о команде
-
-Пример: EfsTools.exe help createDirectory
-
-***version***
-Отобразить версию программы
-
-Пример: EfsTools.exe version
-
-## Лицензии
-Данная программное обеспечение распространяется по лицензии [MIT](/License.md)
-
-Программа использует библиотеку [Commandline](https://github.com/commandlineparser/commandline) Copyright (c) 2005 - 2015 Giacomo Stelluti Scala & Contributors
-
-Программа использует библиотеку [NWebDav](https://github.com/ramondeklein/nwebdav) Copyright (c) 2018 Ramon de Klein
-
-Программа использует библиотеку [Newtonsoft.Json](https://www.newtonsoft.com/json) Copyright (c) 2007 James Newton-King
-
-Программа использует библиотеку [ELFSharp] (http://elfsharp.hellsgate.pl) Copyright (c) Konrad Kruczyński, iotr Zierhoffer, Łukasz Kucharski, Bastian Eicher, Cameron, Fox, Frederik Carlier, Everett Maus
-
-Протокол работы с модемами Qualcomm был прочитан в проекте [libopenpst](https://github.com/openpst/libopenpst) Copyright (c) Gassan Idriss
-
-## Сайт
-[JohnBel](http://johnbel.github.io/)
+The Qualcomm DIAG/QCDM protocol implementation is based on [libopenpst](https://github.com/openpst/libopenpst) by Gassan Idriss.
