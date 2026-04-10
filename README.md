@@ -16,7 +16,7 @@ A command-line tool for accessing the EFS (Embedded File System) on Qualcomm mod
 
 ## Requirements
 
-- [.NET 8.0](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- [.NET 10.0](https://dotnet.microsoft.com/download/dotnet/10.0) or later
 - libusb (installed via your system package manager)
 - A Qualcomm device in DIAG mode connected via USB
 
